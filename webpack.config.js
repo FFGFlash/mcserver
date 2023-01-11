@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 'use strict'
 
 const path = require('path')
@@ -68,6 +69,7 @@ const AppConfig = {
     path: path.resolve(__dirname, 'out/app'),
     clean: true
   },
+  target: 'electron-renderer',
   plugins: [
     new htmlPlugin({
       template: './src/app/index.html'

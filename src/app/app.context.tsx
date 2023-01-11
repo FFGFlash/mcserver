@@ -2,7 +2,9 @@ import { createContext, Dispatch, PropsWithChildren, useReducer } from 'react'
 
 /** Enum containing all valid Actions that can be dispatched to the App Context */
 export enum AppActions {
-  SET_LOADING = 'SET_LOADING'
+  SET_LOADING = 'SET_LOADING',
+  SET_VERSIONS = 'SET_VERSIONS',
+  SET_DARK_MODE = 'SET_DARK_MODE'
 }
 
 /** Type definition for all valid Actions that can be dispatched to the App Context */
@@ -12,17 +14,35 @@ export type AppAction =
       type: AppActions.SET_LOADING
       payload: Exclude<AppActions, AppActions.SET_LOADING>
     }
+  | {
+      type: AppActions.SET_VERSIONS
+      payload: IVersions
+    }
+  | {
+      type: AppActions.SET_DARK_MODE
+      payload: boolean
+    }
 
 /** Interface containing all the type definitions for the App Context */
 export interface IAppContext {
   loading: { [actions: string]: boolean }
+  versions: IVersions
+  darkMode: boolean
   status?: number
   message?: string
 }
 
 /** The Default State of App Context */
 export const DefaultAppContext: IAppContext = {
-  loading: {}
+  loading: {},
+  versions: {
+    latest: {
+      release: '',
+      snapshot: ''
+    },
+    versions: []
+  },
+  darkMode: true
 }
 
 /**
@@ -49,6 +69,18 @@ export function AppReducer(
       return {
         ...state,
         loading: { ...state.loading, [action.payload]: true }
+      }
+    case AppActions.SET_VERSIONS:
+      return {
+        ...state,
+        versions: action.payload,
+        loading: { ...state.loading, [AppActions.SET_VERSIONS]: false }
+      }
+    case AppActions.SET_DARK_MODE:
+      return {
+        ...state,
+        darkMode: action.payload,
+        loading: { ...state.loading, [AppActions.SET_DARK_MODE]: false }
       }
     default:
       throw new Error(

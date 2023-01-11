@@ -1,26 +1,31 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { RouterProvider, createHashRouter } from 'react-router-dom'
-import { AppState } from './app.context'
-import Root, { RootLoader } from './pages/root'
 import './styles'
+import { StrictMode, useContext, useEffect } from 'react'
+import { createRoot } from 'react-dom/client'
+import { RouterProvider } from 'react-router-dom'
+import AppContext, { AppState } from './app.context'
+import Router from './router'
 
 const rootEl = document.getElementById('root')
 if (!rootEl) throw new Error('Root element not found')
 const root = createRoot(rootEl)
 
-const router = createHashRouter([
-  {
-    path: '/',
-    element: <Root />,
-    loader: RootLoader
-  }
-])
+function App() {
+  const { darkMode } = useContext(AppContext)
+
+  useEffect(() => {
+    darkMode
+      ? document.documentElement.classList.add('dark')
+      : document.documentElement.classList.remove('dark')
+    document.documentElement.classList.remove('preload')
+  }, [darkMode])
+
+  return <RouterProvider router={Router} />
+}
 
 root.render(
   <StrictMode>
     <AppState>
-      <RouterProvider router={router} />
+      <App />
     </AppState>
   </StrictMode>
 )
