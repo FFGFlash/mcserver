@@ -1,50 +1,20 @@
-import {
-  MouseEventHandler,
-  PropsWithChildren,
-  useContext,
-  useEffect
-} from 'react'
-import {
-  ActionFunctionArgs,
-  Form,
-  Link,
-  Outlet,
-  redirect,
-  useLoaderData
-} from 'react-router-dom'
+import { MouseEventHandler, PropsWithChildren } from 'react'
+import { Form, Link, Outlet, redirect, useLoaderData } from 'react-router-dom'
 import tw, { styled, TwStyle } from 'twin.macro'
-import AppContext, { AppActions } from '../app.context'
-import { createServer, getServers, IServer } from '../data/servers'
 import Add from '../images/add.svg'
 import Home from '../images/home.svg'
 import Server from '../images/server.svg'
 import Star from '../images/star.svg'
-import Request from '../request'
 
 export default function App() {
-  const { versions, darkMode, dispatch } = useContext(AppContext)
-  const { servers } = useLoaderData() as { servers: IServer[] }
+  const { servers } = useLoaderData() as { servers: IServerInfo[] }
 
-  useEffect(() => {
-    if (!versions) return
-    dispatch({ type: AppActions.SET_LOADING, payload: AppActions.SET_VERSIONS })
-    Request<IVersions>(
-      'https://piston-meta.mojang.com/mc/game/version_manifest_v2.json'
-    ).then(payload => dispatch({ type: AppActions.SET_VERSIONS, payload }))
-  }, [])
-
-  const w = window as never as { servers: IServer[]; versions: object }
-  w.servers = servers
-  w.versions = versions
-
-  const toggleDarkMode = () =>
-    dispatch({ type: AppActions.SET_DARK_MODE, payload: !darkMode })
+  const toggleDarkMode = () => window.darkModeAPI.toggle()
 
   return (
     <RootWrapper>
-      <SidebarWrapper method="post" id="create-server">
+      <SidebarWrapper method="post">
         <SidebarGroup>
-          <input type="hidden" name="version" value={versions.latest.release} />
           <SidebarItem
             type="link"
             to="/"
@@ -151,23 +121,21 @@ function SidebarItem(props: SidebarItemProps) {
 }
 
 export async function loader() {
-  const servers = await getServers()
-  return { servers }
+  const servers = await window.serverAPI.getAll()
+  const darkMode = await window.darkModeAPI.isDarkMode()
+  return { servers, darkMode }
 }
 
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData()
-  const version = formData.get('version')
-  if (!version) return
-  const server = await createServer(version as string)
+export async function action() {
+  const server = await window.serverAPI.create()
   return redirect(`/server/${server.id}/edit`)
 }
 
-const RootWrapper = tw.div`flex flex-row h-full`
+const RootWrapper = tw.div`flex min-h-screen h-fit flex-row`
 
 const SidebarWrapper = tw(
   Form
-)`relative h-fit min-h-screen w-16 m-0 flex flex-col gap-2 py-2 bg-neutral-100 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 shadow-lg justify-between`
+)`relative w-16 m-0 flex flex-col gap-2 py-2 bg-neutral-100 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 shadow-lg justify-between`
 const SidebarGroup = tw.div`flex flex-col gap-2`
 const SidebarLink = styled(Link)<{ fill: TwStyle; background: TwStyle }>`
   ${tw`relative flex items-center justify-center h-12 w-12 mx-auto p-1 bg-neutral-200 dark:bg-neutral-800 rounded-3xl hover:rounded-2xl transition-all cursor-pointer duration-300 ease-in-out`}
@@ -191,4 +159,4 @@ const ServerIcon = tw(Server)`fill-inherit`
 const StarIcon = tw(Star)`fill-inherit`
 const Divider = tw.div`border-b-2 border-neutral-200 dark:border-neutral-800 mx-2`
 
-const PageWrapper = tw.div`relative flex-1 h-full px-2 py-2`
+const PageWrapper = tw.div`relative flex-1 px-2 py-2`

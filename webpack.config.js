@@ -43,6 +43,7 @@ const BaseConfig = {
     ]
   },
   resolve: {
+    alias: { src: path.resolve(__dirname, 'src') },
     extensions: ['.tsx', '.ts', '.jsx', '.js', '.svg', '.sass', '.scss']
   },
   plugins: [
@@ -80,13 +81,23 @@ const AppConfig = {
 
 NODE_ENV === 'production' && AppConfig.plugins.push(new cssExtractPlugin())
 
+const PreloadConfig = {
+  entry: './src/electron/preload.ts',
+  output: {
+    filename: 'preload.js',
+    path: path.resolve(__dirname, 'out')
+  },
+  target: 'electron-preload',
+  watch: false
+}
+
 const ElectronConfig = {
   entry: './src/electron/index.ts',
   output: {
     filename: 'index.js',
     path: path.resolve(__dirname, 'out'),
     clean: {
-      keep: /app\//
+      keep: /(app\/|preload\.js)/
     }
   },
   target: 'electron-main',
@@ -110,5 +121,6 @@ NODE_ENV === 'development' &&
 
 module.exports = [
   merge(AppConfig, BaseConfig),
+  merge(PreloadConfig, BaseConfig),
   merge(ElectronConfig, BaseConfig)
 ]

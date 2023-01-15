@@ -1,21 +1,32 @@
-import { ChangeEvent, PropsWithChildren, useContext, useState } from 'react'
+import { ChangeEvent, PropsWithChildren, useState } from 'react'
 import {
   ActionFunctionArgs,
   Form,
+  LoaderFunctionArgs,
   redirect,
   useLoaderData
 } from 'react-router-dom'
 import tw, { styled } from 'twin.macro'
-import AppContext from '../app.context'
-import { IServer, updateServer } from '../data/servers'
+import { totalmem } from 'os'
 
 export default function Edit() {
-  const { versions } = useContext(AppContext)
-  const { server } = useLoaderData() as { server: IServer }
+  const { server, versions } = useLoaderData() as {
+    server: IServerInfo
+    versions: IVersions
+  }
   const [includeSnapshots, setIncludeSnapshots] = useState(false)
+  const [minMemory, setMinMemory] = useState(server.minMemory)
+  const [softMaxMemory, setSoftMaxMemory] = useState(server.softMaxMemory)
+  const [maxMemory, setMaxMemory] = useState(server.maxMemory)
 
   const handleCheck = (e: ChangeEvent<HTMLInputElement>) =>
     setIncludeSnapshots(e.target.checked)
+  const handleMinMemory = (e: ChangeEvent<HTMLInputElement>) =>
+    setMinMemory(parseInt(e.target.value))
+  const handleSoftMaxMemory = (e: ChangeEvent<HTMLInputElement>) =>
+    setSoftMaxMemory(parseInt(e.target.value))
+  const handleMaxMemory = (e: ChangeEvent<HTMLInputElement>) =>
+    setMaxMemory(parseInt(e.target.value))
 
   return (
     <EditWrapper>
@@ -43,39 +54,86 @@ export default function Edit() {
               </option>
             ))}
         </Select>
+        <Input
+          type="range"
+          name="minMemory"
+          label="Minimum Memory Usage"
+          value={minMemory}
+          min={128}
+          max={softMaxMemory}
+          onChange={handleMinMemory}
+          suffix="mb"
+        />
+        <Input
+          type="range"
+          name="softMaxMemory"
+          label="Target Memory Usage"
+          value={softMaxMemory}
+          min={minMemory}
+          max={maxMemory}
+          onChange={handleSoftMaxMemory}
+          suffix="mb"
+        />
+        <Input
+          type="range"
+          name="maxMemory"
+          label="Maximum Memory Usage"
+          value={maxMemory}
+          min={softMaxMemory}
+          max={Math.floor((totalmem() * 0.75) / 1000000)}
+          onChange={handleMaxMemory}
+          suffix="mb"
+        />
         <StyledButton type="submit">Save</StyledButton>
       </EditContainer>
     </EditWrapper>
   )
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function loader({ params }: LoaderFunctionArgs) {
+  const id = params.serverID as string
+
+  const server = await window.serverAPI.get(id)
+  const versions = await window.serverAPI.getVersions()
+
+  return { server, versions }
+}
+
+export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData()
-  const id = formData.get('id') as string
-  const name = formData.get('name') as string
-  const version = formData.get('version') as string
-  await updateServer({ id, name, version })
+  const id = params.serverID as string
+  window.serverAPI.update(
+    id,
+    formData.get('name') as string,
+    formData.get('version') as string,
+    parseInt(formData.get('minMemory') as string),
+    parseInt(formData.get('softMaxMemory') as string),
+    parseInt(formData.get('maxMemory') as string)
+  )
   return redirect(`/server/${id}`)
 }
 
 type InputProps = (
   | { type: 'text'; placeholder?: string }
-  | { type: 'checkbox'; checked?: boolean }
+  | { type: 'checkbox'; name: string; checked?: boolean }
+  | { type: 'range'; min: number; max: number; suffix?: string }
 ) & {
   label?: string
-  name: string
+  name?: string
   value?: any
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void
 }
 
 function Input(props: InputProps) {
   const { label, name, value, onChange } = props
+  const labelEl = label && <InputLabel htmlFor={name}>{label}</InputLabel>
   switch (props.type) {
     case 'text':
       return (
         <InputWrapper type={props.type}>
-          {label && <InputLabel htmlFor={name}>{label}</InputLabel>}
+          {labelEl}
           <StyledInput
+            id={name}
             name={name}
             type={props.type}
             placeholder={props.placeholder}
@@ -86,14 +144,38 @@ function Input(props: InputProps) {
       )
     case 'checkbox':
       return (
-        <InputWrapper type={props.type}>
+        <InputWrapper className="group" type={props.type}>
           <StyledInput
             type={props.type}
             name={name}
+            id={name}
             defaultChecked={props.checked}
             onChange={onChange}
           />
-          {label && <InputLabel htmlFor={name}>{label}</InputLabel>}
+          <InputLabel htmlFor={name}>
+            <StyledCheckbox checked={props.checked} />
+            {label}
+          </InputLabel>
+        </InputWrapper>
+      )
+    case 'range':
+      return (
+        <InputWrapper type={props.type}>
+          {label && (
+            <InputLabel htmlFor={name}>
+              {label} - {value}
+              {props.suffix}
+            </InputLabel>
+          )}
+          <StyledInput
+            id={name}
+            name={name}
+            type={props.type}
+            defaultValue={value}
+            onChange={onChange}
+            min={props.min}
+            max={props.max}
+          />
         </InputWrapper>
       )
     default:
@@ -120,22 +202,45 @@ function Select(props: SelectProps) {
   )
 }
 
-const EditWrapper = tw.div`flex justify-center items-center h-full`
+const EditWrapper = tw.div`flex h-full`
 const EditContainer = tw(
   Form
-)`flex flex-col bg-neutral-100 dark:bg-neutral-900 rounded-xl px-5 py-2 gap-4 w-2/3 max-w-xl`
+)`flex flex-col bg-neutral-100 dark:bg-neutral-900 rounded-xl px-5 py-2 gap-4 w-2/3 max-w-xl m-auto`
 
 const InputWrapper = styled.div<{ type: string }>`
   ${tw`flex flex-col gap-2`}
   ${({ type }: { type: string }) =>
-    type === 'checkbox' && tw`flex-row items-center`}
+    type === 'checkbox' && tw`flex-row items-center select-none`}
+  &:has(span) * {
+    ${tw`cursor-pointer`}
+  }
 `
-const InputLabel = tw.label`block text-sm font-medium text-neutral-800 dark:text-neutral-200`
+const InputLabel = tw.label`flex gap-2 items-center text-sm font-medium text-neutral-800 dark:text-neutral-200`
 const StyledInput = styled.input`
   ${tw`bg-neutral-200 dark:bg-neutral-800 border border-neutral-400 text-neutral-800 dark:text-neutral-200 text-sm rounded-xl focus:ring-sky-400 focus:border-sky-400 focus:ring-2 block w-full p-2.5`}
   ${({ type }: { type: string }) =>
-    type === 'checkbox' &&
-    tw`cursor-pointer w-4 h-4 text-sky-400 rounded dark:ring-offset-neutral-400 p-0`}
+    type === 'checkbox'
+      ? tw`absolute opacity-0 h-0 w-0 cursor-pointer`
+      : type === 'range'
+      ? tw`cursor-pointer appearance-none h-1 rounded-sm p-0`
+      : null}
+  &::-webkit-slider-thumb {
+    ${tw`w-4 h-4 appearance-none cursor-pointer rounded-full bg-sky-400`}
+  }
+  &::-moz-range-thumb {
+    ${tw`w-4 h-4 cursor-pointer rounded-full bg-sky-400`}
+  }
+`
+type StyledCheckboxProps = { checked?: boolean }
+const StyledCheckbox = styled.span<StyledCheckboxProps>`
+  ${tw`w-4 h-4 relative group-hover:bg-neutral-300 group-hover:dark:bg-neutral-700 cursor-pointer inline-block bg-neutral-200 dark:bg-neutral-800 border border-neutral-400 text-neutral-800 dark:text-neutral-200 text-sm rounded-sm focus:ring-sky-400 focus:border-sky-400 focus:ring-2`}
+  ${({ checked }: StyledCheckboxProps) => checked && tw`bg-sky-400!`}
+  &::after {
+    content: '';
+    ${tw`absolute hidden left-1.5 top-0.5 w-1 h-2 border border-neutral-100 rotate-45`}
+    ${({ checked }: StyledCheckboxProps) => checked && tw`block`}
+    border-width: 0 0.125rem 0.125rem 0
+  }
 `
 
 const SelectWrapper = tw.select`cursor-pointer bg-neutral-200 dark:bg-neutral-800 border border-neutral-400 text-neutral-800 dark:text-neutral-200 text-sm rounded-xl focus:ring-sky-400 focus:border-sky-400 block w-full p-2.5`

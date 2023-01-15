@@ -20,7 +20,7 @@
   "rules": {
     "indent": ["off"],
     "linebreak-style": ["error", "windows"],
-    "quotes": ["error", "single"],
+    "quotes": ["off"],
     "semi": ["error", "never"],
     "no-console": ["error", { "allow": ["warn", "error"] }],
     "@typescript-eslint/no-explicit-any": ["off"]

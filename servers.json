@@ -1,7 +1,18 @@
 [
   {
-    "id": "604050ad-e329-49c9-afa4-04711baa53a7",
-    "name": "Example Server",
-    "version": "1.19.3"
+    "id": "087acd88-dad8-4e7c-8f34-520b6b911925",
+    "name": "1.19.3 Server",
+    "version": "1.19.3",
+    "minMemory": 512,
+    "softMaxMemory": 1024,
+    "maxMemory": 2048
+  },
+  {
+    "id": "b64f8e63-391a-404c-b39f-755ccb98c0e7",
+    "name": "1.12.2 Server",
+    "version": "1.12.2",
+    "minMemory": 512,
+    "softMaxMemory": 1024,
+    "maxMemory": 2048
   }
 ]

@@ -1,17 +1,19 @@
 import './styles'
-import { StrictMode, useContext, useEffect } from 'react'
+import { StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
-import AppContext, { AppState } from './app.context'
 import Router from './router'
+import LoadingBoundary from './components/loadingBoundary'
 
 const rootEl = document.getElementById('root')
 if (!rootEl) throw new Error('Root element not found')
 const root = createRoot(rootEl)
 
 function App() {
-  const { darkMode } = useContext(AppContext)
+  const [darkMode, setDarkMode] = useState(false)
 
+  window.darkModeAPI.isDarkMode().then(setDarkMode)
+  useEffect(() => window.darkModeAPI.changed(setDarkMode), [])
   useEffect(() => {
     darkMode
       ? document.documentElement.classList.add('dark')
@@ -19,13 +21,13 @@ function App() {
     document.documentElement.classList.remove('preload')
   }, [darkMode])
 
-  return <RouterProvider router={Router} />
+  return (
+    <RouterProvider router={Router} fallbackElement={<LoadingBoundary />} />
+  )
 }
 
 root.render(
   <StrictMode>
-    <AppState>
-      <App />
-    </AppState>
+    <App />
   </StrictMode>
 )

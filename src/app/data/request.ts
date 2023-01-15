@@ -37,7 +37,9 @@ export default async function Request<T>(
       ? res.json()
       : type.includes('application/octet-stream')
       ? res.blob()
-      : res.text())
+      : type.includes('text')
+      ? res.text()
+      : res)
     if ((!data || !data.status) && !res.ok)
       data = { status: res.status, message: res.statusText }
     log(`rx ${options.method}: ${url}`, res, data)
