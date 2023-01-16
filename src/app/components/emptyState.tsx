@@ -1,12 +1,17 @@
 import tw from 'twin.macro'
 import Info from '../images/info.svg'
 
-export default function LoadingBoundary() {
+interface EmptyStateProps {
+  title: string
+  description: string
+}
+
+export default function EmptyState({ title, description }: EmptyStateProps) {
   return (
     <InfoWrapper>
       <InfoIcon />
-      <h1>Just a moment!</h1>
-      <p>We&#39;re getting things ready.</p>
+      <h1>{title}</h1>
+      <p>{description}</p>
     </InfoWrapper>
   )
 }

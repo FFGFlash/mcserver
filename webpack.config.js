@@ -66,7 +66,7 @@ const BaseConfig = {
 const AppConfig = {
   entry: './src/app/index.tsx',
   output: {
-    filename: 'app.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, 'out/app'),
     clean: true
   },

@@ -1,45 +1,48 @@
 import { createHashRouter, RouteObject } from 'react-router-dom'
-import Root, { loader as rootLoader, action as rootAction } from './pages/root'
-import ErrorBoundary from './components/errorBoundary'
-import Dashboard from './pages/dashboard'
-import Edit, { loader as editLoader, action as editAction } from './pages/edit'
-import Server, {
-  loader as serverLoader,
-  action as serverAction
-} from './pages/server'
-import Console, {
-  loader as consoleLoader,
-  action as consoleAction
-} from './pages/console'
-import Properties, {
-  loader as propertiesLoader,
-  action as propertiesAction
-} from './pages/properties'
+import ErrorState from './components/errorState'
+import { lazy } from 'react'
+
+import { rootLoader, rootAction } from './data/root'
+import { editLoader, editAction } from './data/edit'
+import { serverLoader, serverAction } from './data/server'
+import { propertiesLoader, propertiesAction } from './data/properties'
+import { consoleLoader, consoleAction } from './data/console'
+
+const Root = lazy(() => import('./pages/root'))
+const Dashboard = lazy(() => import('./pages/dashboard'))
+const Edit = lazy(() => import('./pages/edit'))
+const Server = lazy(() => import('./pages/server'))
+const Properties = lazy(() => import('./pages/properties'))
+const Console = lazy(() => import('./pages/console'))
 
 export const routes: RouteObject[] = [
   {
     path: '/',
     element: <Root />,
-    errorElement: <ErrorBoundary />,
+    errorElement: <ErrorState />,
     loader: rootLoader,
     action: rootAction,
     children: [
       {
         index: true,
         element: <Dashboard />,
-        errorElement: <ErrorBoundary />
+        errorElement: <ErrorState />
+      },
+      {
+        path: '*',
+        element: <ErrorState status={404} message="Page Not Found" />
       },
       {
         path: 'server/:serverID/edit',
         element: <Edit />,
-        errorElement: <ErrorBoundary />,
+        errorElement: <ErrorState />,
         loader: editLoader,
         action: editAction
       },
       {
         path: 'server/:serverID',
         element: <Server />,
-        errorElement: <ErrorBoundary />,
+        errorElement: <ErrorState />,
         id: 'server',
         loader: serverLoader,
         action: serverAction,
@@ -47,14 +50,14 @@ export const routes: RouteObject[] = [
           {
             index: true,
             element: <Properties />,
-            errorElement: <ErrorBoundary />,
+            errorElement: <ErrorState />,
             loader: propertiesLoader,
             action: propertiesAction
           },
           {
             path: 'console',
             element: <Console />,
-            errorElement: <ErrorBoundary />,
+            errorElement: <ErrorState />,
             loader: consoleLoader,
             action: consoleAction
           }

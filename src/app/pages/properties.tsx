@@ -1,9 +1,4 @@
-import {
-  ActionFunctionArgs,
-  Form,
-  LoaderFunctionArgs,
-  useLoaderData
-} from 'react-router-dom'
+import { Form, useLoaderData } from 'react-router-dom'
 import tw from 'twin.macro'
 
 export default function Properties() {
@@ -31,23 +26,6 @@ export default function Properties() {
       )}
     </PropertiesWrapper>
   )
-}
-
-export async function loader({ params }: LoaderFunctionArgs) {
-  const id = params.serverID as string
-  const properties = await window.serverAPI.getProperties(id)
-  return { properties }
-}
-
-export async function action({ request, params }: ActionFunctionArgs) {
-  const formData = await request.formData()
-  const id = params.serverID as string
-  const props = [...formData.entries()].map(prop => ({
-    key: prop[0],
-    value: prop[1].toString()
-  }))
-  window.serverAPI.setProperties(id, props)
-  return null
 }
 
 const PropertiesWrapper = tw(

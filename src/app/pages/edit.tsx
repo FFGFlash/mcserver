@@ -1,11 +1,5 @@
 import { ChangeEvent, PropsWithChildren, useState } from 'react'
-import {
-  ActionFunctionArgs,
-  Form,
-  LoaderFunctionArgs,
-  redirect,
-  useLoaderData
-} from 'react-router-dom'
+import { Form, useLoaderData } from 'react-router-dom'
 import tw, { styled } from 'twin.macro'
 import { totalmem } from 'os'
 
@@ -88,29 +82,6 @@ export default function Edit() {
       </EditContainer>
     </EditWrapper>
   )
-}
-
-export async function loader({ params }: LoaderFunctionArgs) {
-  const id = params.serverID as string
-
-  const server = await window.serverAPI.get(id)
-  const versions = await window.serverAPI.getVersions()
-
-  return { server, versions }
-}
-
-export async function action({ request, params }: ActionFunctionArgs) {
-  const formData = await request.formData()
-  const id = params.serverID as string
-  window.serverAPI.update(
-    id,
-    formData.get('name') as string,
-    formData.get('version') as string,
-    parseInt(formData.get('minMemory') as string),
-    parseInt(formData.get('softMaxMemory') as string),
-    parseInt(formData.get('maxMemory') as string)
-  )
-  return redirect(`/server/${id}`)
 }
 
 type InputProps = (

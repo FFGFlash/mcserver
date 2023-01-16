@@ -2,7 +2,12 @@ import { useRouteError } from 'react-router-dom'
 import tw from 'twin.macro'
 import Error from '../images/error.svg'
 
-export default function ErrorBoundary() {
+interface ErrorStateProps {
+  status?: number
+  message?: string
+}
+
+export default function ErrorState({ status, message }: ErrorStateProps) {
   const error = useRouteError() as {
     status: number
     statusText?: string
@@ -14,7 +19,8 @@ export default function ErrorBoundary() {
       <ErrorIcon />
       <h1>Oops! Looks like you&#39;ve run into an issue.</h1>
       <p>
-        Error {error.status}: {error.statusText || error.message}
+        Error {status || error.status}:{' '}
+        {message || error.statusText || error.message}
       </p>
     </ErrorWrapper>
   )

@@ -1,10 +1,5 @@
 import { ChangeEventHandler, useEffect, useState } from 'react'
-import {
-  ActionFunctionArgs,
-  Form,
-  LoaderFunctionArgs,
-  useLoaderData
-} from 'react-router-dom'
+import { Form, useLoaderData } from 'react-router-dom'
 import tw, { styled } from 'twin.macro'
 
 export default function Console() {
@@ -49,23 +44,9 @@ export default function Console() {
   )
 }
 
-export async function loader({ params }: LoaderFunctionArgs) {
-  const id = params.serverID as string
-  const logs = await window.serverAPI.getLogs(id)
-  return { id, logs }
-}
-
-export async function action({ params, request }: ActionFunctionArgs) {
-  const formData = await request.formData()
-  const id = params.serverID as string
-  const command = formData.get('command') as string
-  window.serverAPI.execute(id, command)
-  return null
-}
-
 const ConsoleWrapper = tw(
   Form
-)`w-full bg-neutral-100 dark:bg-neutral-900 p-5 rounded-xl flex flex-col gap-2 h-[75vh]`
+)`w-full bg-neutral-100 dark:bg-neutral-900 p-5 rounded-xl flex flex-col gap-2 h-[75vh] min-h-[10rem]`
 
 type ConsoleLogProps = { type: ServerLogTypes }
 const ConsoleLog = styled.span<ConsoleLogProps>`

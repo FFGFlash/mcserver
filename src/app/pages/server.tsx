@@ -1,18 +1,11 @@
-import {
-  LoaderFunctionArgs,
-  redirect,
-  ActionFunctionArgs,
-  useSubmit,
-  Outlet,
-  useLoaderData,
-  useNavigate
-} from 'react-router-dom'
+import { useSubmit, Outlet, useLoaderData, useNavigate } from 'react-router-dom'
 import tw, { styled } from 'twin.macro'
 import Power from '../images/power.svg'
 import Edit from '../images/edit.svg'
 import Delete from '../images/delete.svg'
 import Console from '../images/console.svg'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
+import LoadingState from '../components/loadingState'
 
 export default function Server() {
   const submit = useSubmit()
@@ -67,40 +60,12 @@ export default function Server() {
         </ServerButtons>
       </ServerHeader>
       <ServerComponent>
-        <Outlet />
+        <Suspense fallback={<LoadingState />}>
+          <Outlet />
+        </Suspense>
       </ServerComponent>
     </ServerWrapper>
   )
-}
-
-export async function action({ request, params }: ActionFunctionArgs) {
-  const id = params.serverID as string
-  if (request.method.toLowerCase() === 'delete') {
-    window.serverAPI.delete(id)
-    return redirect('/')
-  } else if (request.method.toLowerCase() === 'post') {
-    const data = await request.formData()
-    const state = data.get('state') as ServerState
-    switch (state) {
-      case 'RUNNING':
-        window.serverAPI.stop(id)
-        break
-      case 'STOPPED':
-      case 'CRASHED':
-        window.serverAPI.start(id)
-        break
-      default:
-        break
-    }
-    return redirect(window.location.hash.replace('#', ''))
-  }
-}
-
-export async function loader({ params }: LoaderFunctionArgs) {
-  const id = params.serverID as string
-  const server = await window.serverAPI.get(id)
-  const status = await window.serverAPI.getStatus(id)
-  return { server, status }
 }
 
 type PowerIconProps = { state?: ServerState }

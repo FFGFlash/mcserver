@@ -289,7 +289,9 @@ export default class Server {
   }
 
   static async load() {
-    return await readFile('./servers.json', 'utf-8').then(data =>
+    const { file } = this
+    if (!existsSync(file)) return []
+    return await readFile(file, 'utf-8').then(data =>
       (JSON.parse(data) as IServerInfo[]).map(
         ({ id, name, version, minMemory, softMaxMemory, maxMemory }) =>
           new Server(id, name, version, minMemory, softMaxMemory, maxMemory)
@@ -298,8 +300,10 @@ export default class Server {
   }
 
   static async save() {
+    const { file } = this
+    if (!existsSync('./servers')) await mkdir('./servers', { recursive: true })
     return await writeFile(
-      './servers.json',
+      file,
       JSON.stringify(
         Object.values(Server.Cache).reduce(
           (data, server) => [...data, server.info],
@@ -424,6 +428,10 @@ export default class Server {
 
   get prop() {
     return path.join('./servers', this.id, 'server.properties')
+  }
+
+  static get file() {
+    return path.join('./servers/server.json')
   }
 }
 

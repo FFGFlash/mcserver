@@ -1,15 +1,21 @@
-import { MouseEventHandler, PropsWithChildren } from 'react'
-import { Form, Link, Outlet, redirect, useLoaderData } from 'react-router-dom'
+import { MouseEventHandler, PropsWithChildren, Suspense, useState } from 'react'
+import { Form, Link, Outlet, useLoaderData } from 'react-router-dom'
 import tw, { styled, TwStyle } from 'twin.macro'
+import LoadingState from '../components/loadingState'
 import Add from '../images/add.svg'
 import Home from '../images/home.svg'
 import Server from '../images/server.svg'
 import Star from '../images/star.svg'
 
-export default function App() {
-  const { servers } = useLoaderData() as { servers: IServerInfo[] }
+export default function Root() {
+  const { servers, darkMode: initialDarkMode } = useLoaderData() as {
+    servers: IServerInfo[]
+    darkMode: boolean
+  }
 
-  const toggleDarkMode = () => window.darkModeAPI.toggle()
+  const [darkMode, setDarkMode] = useState(initialDarkMode)
+
+  const toggleDarkMode = () => window.darkModeAPI.toggle().then(setDarkMode)
 
   return (
     <RootWrapper>
@@ -51,14 +57,16 @@ export default function App() {
             fill={tw`fill-neutral-400 dark:bg-neutral-600`}
             background={tw`bg-neutral-300 dark:bg-neutral-700`}
             onClick={toggleDarkMode}
-            tooltip="Toggle Dark Mode"
+            tooltip={`Toggle ${darkMode ? 'Light' : 'Dark'} Mode`}
           >
             <StarIcon />
           </SidebarItem>
         </SidebarGroup>
       </SidebarWrapper>
       <PageWrapper>
-        <Outlet />
+        <Suspense fallback={<LoadingState />}>
+          <Outlet />
+        </Suspense>
       </PageWrapper>
     </RootWrapper>
   )
@@ -118,17 +126,6 @@ function SidebarItem(props: SidebarItemProps) {
         </SidebarButton>
       )
   }
-}
-
-export async function loader() {
-  const servers = await window.serverAPI.getAll()
-  const darkMode = await window.darkModeAPI.isDarkMode()
-  return { servers, darkMode }
-}
-
-export async function action() {
-  const server = await window.serverAPI.create()
-  return redirect(`/server/${server.id}/edit`)
 }
 
 const RootWrapper = tw.div`flex min-h-screen h-fit flex-row`

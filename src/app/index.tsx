@@ -1,9 +1,9 @@
 import './styles'
-import { StrictMode, useEffect, useState } from 'react'
+import { StrictMode, Suspense, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import Router from './router'
-import LoadingBoundary from './components/loadingBoundary'
+import LoadingState from './components/loadingState'
 
 const rootEl = document.getElementById('root')
 if (!rootEl) throw new Error('Root element not found')
@@ -21,13 +21,13 @@ function App() {
     document.documentElement.classList.remove('preload')
   }, [darkMode])
 
-  return (
-    <RouterProvider router={Router} fallbackElement={<LoadingBoundary />} />
-  )
+  return <RouterProvider router={Router} fallbackElement={<LoadingState />} />
 }
 
 root.render(
   <StrictMode>
-    <App />
+    <Suspense fallback={<LoadingState />}>
+      <App />
+    </Suspense>
   </StrictMode>
 )

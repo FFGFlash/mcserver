@@ -9,7 +9,7 @@ export async function confirm(title: string, message: string) {
     type: 'question',
     title,
     message,
-    buttons: ['agree', 'disagree']
+    buttons: ['Agree', 'Disagree']
   })
   return response === 0
 }
@@ -101,8 +101,4 @@ app.on('window-all-closed', async () => {
   // eslint-disable-next-line no-console
   console.log('Safely shutdown')
   if (process.platform !== 'darwin') app.quit()
-})
-
-app.on('activate', () => {
-  BrowserWindow.getAllWindows().length === 0 && createWindow()
 })
