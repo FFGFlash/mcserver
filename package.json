@@ -1,19 +1,21 @@
 {
-  "name": "electron-app",
+  "name": "minecraft-server-manager",
+  "private": true,
   "version": "1.0.0",
   "description": "",
   "main": "out/index.js",
   "scripts": {
     "build": "webpack",
-    "start": "cross-env NODE_ENV=development webpack"
+    "start": "cross-env NODE_ENV=development webpack",
+    "package": "echo.Coming Soon"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/FFGFlash/electron-app.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Drake Taylor",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/FFGFlash/electron-app/issues"
   },
