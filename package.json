@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "out/index.js",
+  "bin": "out/index.js",
   "scripts": {
     "build": "webpack",
     "start": "cross-env NODE_ENV=development webpack",

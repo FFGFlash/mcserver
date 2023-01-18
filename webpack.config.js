@@ -20,6 +20,11 @@ const BaseConfig = {
         type: 'asset/inline'
       },
       {
+        test: /\.(?:ttf|otf|woff(2)?)$/i,
+        type: 'asset/inline'
+        // generator: { outputPath: 'assets/fonts', publicPath: '/assets/fonts/' }
+      },
+      {
         test: /\.(?:[tj]sx?)$/i,
         exclude: /node_modules/,
         use: ['babel-loader']

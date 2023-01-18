@@ -2,6 +2,8 @@ import { app, BrowserWindow, ipcMain, dialog, nativeTheme } from 'electron'
 import path from 'path'
 import Server from './server'
 
+const { NODE_ENV = 'production' } = process.env
+
 export let window!: BrowserWindow
 
 export async function confirm(title: string, message: string) {
@@ -22,15 +24,16 @@ function createWindow() {
   const window = new BrowserWindow({
     width: 800,
     height: 600,
+    autoHideMenuBar: true,
     show: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       sandbox: false,
+      devTools: NODE_ENV === 'development',
       preload: path.join(__dirname, 'preload.js')
     }
   })
-  window.setMenuBarVisibility(false)
   window
     .loadFile(path.join(__dirname, 'app/index.html'))
     .then(() => window.show())
