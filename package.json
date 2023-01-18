@@ -8,7 +8,7 @@
   "scripts": {
     "build": "webpack",
     "start": "cross-env NODE_ENV=development webpack",
-    "package": "echo.Coming Soon"
+    "dist": "npm run build && electron-builder build"
   },
   "repository": {
     "type": "git",
@@ -42,6 +42,7 @@
     "css-minimizer-webpack-plugin": "^4.2.2",
     "cssnano": "^5.1.14",
     "electron": "^22.0.0",
+    "electron-builder": "^23.6.0",
     "eslint": "^8.31.0",
     "eslint-plugin-html": "^7.1.0",
     "eslint-plugin-react": "^7.31.11",
@@ -73,5 +74,14 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.6.1",
     "styled-components": "^5.3.6"
+  },
+  "build": {
+    "appId": "me.taylorda.mcserver",
+    "productName": "Minecraft Server Manager",
+    "copyright": "Copyright (c) 2023 Drake Taylor",
+    "win": {
+      "target": "nsis",
+      "icon": "src/app/images/icon.ico"
+    }
   }
 }
