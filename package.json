@@ -1,7 +1,7 @@
 {
   "name": "minecraft-server-manager",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "",
   "main": "out/index.js",
   "bin": "out/index.js",
@@ -12,15 +12,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/FFGFlash/electron-app.git"
+    "url": "git+https://github.com/FFGFlash/mcserver.git"
   },
   "keywords": [],
   "author": "Drake Taylor",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/FFGFlash/electron-app/issues"
+    "url": "https://github.com/FFGFlash/mcserver/issues"
   },
-  "homepage": "https://github.com/FFGFlash/electron-app#readme",
+  "homepage": "https://github.com/FFGFlash/mcserver#readme",
   "devDependencies": {
     "@babel/core": "^7.20.12",
     "@babel/preset-env": "^7.20.2",
@@ -70,6 +70,7 @@
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "electron-fetch": "^1.9.1",
+    "electron-updater": "^5.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.6.1",
@@ -81,7 +82,8 @@
     "copyright": "Copyright (c) 2023 Drake Taylor",
     "win": {
       "target": "nsis",
-      "icon": "src/app/images/icon.ico"
+      "icon": "src/app/images/icon.ico",
+      "publish": "github"
     }
   }
 }

@@ -11,7 +11,7 @@ export async function Request(url: string) {
 
 export default function Download(url: string, filename: string) {
   return new Promise<string>((resolve, reject) => {
-    const process = spawn('curl', ['-o', filename, url])
+    const process = spawn('curl', ['--ssl-no-revoke', '-o', filename, url])
     let data = '',
       errData = ''
 

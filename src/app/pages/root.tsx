@@ -23,7 +23,7 @@ export default function Root() {
         <SidebarGroup>
           <SidebarItem
             type="link"
-            to="/"
+            to=""
             fill={tw`fill-sky-600 dark:fill-sky-400`}
             background={tw`bg-blue-400 dark:bg-blue-600`}
           >
@@ -34,7 +34,7 @@ export default function Root() {
             <SidebarItem
               type="link"
               key={server.id}
-              to={`/server/${server.id}`}
+              to={`server/${server.id}`}
               fill={tw`fill-amber-600 dark:fill-amber-400`}
               background={tw`bg-orange-400 dark:bg-orange-600`}
               tooltip={server.name}

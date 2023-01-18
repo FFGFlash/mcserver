@@ -1,10 +1,33 @@
-import { app, BrowserWindow, ipcMain, dialog, nativeTheme } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  dialog,
+  nativeTheme,
+  Menu
+} from 'electron'
+import { autoUpdater } from 'electron-updater'
 import path from 'path'
 import Server from './server'
 
 const { NODE_ENV = 'production' } = process.env
 
 export let window!: BrowserWindow
+
+const MenuTemplate: (
+  | Electron.MenuItemConstructorOptions
+  | Electron.MenuItem
+)[] = []
+if (process.platform === 'darwin') {
+  const name = app.getName()
+  MenuTemplate.unshift({
+    label: name,
+    submenu: [
+      { label: `About ${name}`, role: 'about' },
+      { label: 'Quit', accelerator: 'Command+Q', click: () => app.quit() }
+    ]
+  })
+}
 
 export async function confirm(title: string, message: string) {
   const { response } = await dialog.showMessageBox(window, {
@@ -20,11 +43,11 @@ export function send(event: string, ...args: any[]) {
   window.webContents.send(event, ...args)
 }
 
-function createWindow() {
+async function createWindow() {
   const window = new BrowserWindow({
     width: 800,
     height: 600,
-    autoHideMenuBar: true,
+    autoHideMenuBar: NODE_ENV === 'development',
     show: false,
     webPreferences: {
       nodeIntegration: true,
@@ -34,9 +57,8 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js')
     }
   })
-  window
-    .loadFile(path.join(__dirname, 'app/index.html'))
-    .then(() => window.show())
+  await window.loadFile(path.join(__dirname, 'app/index.html'))
+  window.show()
   return window
 }
 
@@ -90,11 +112,49 @@ app.on('ready', async () => {
   ipcMain.on('set-server-properties', (_, id, properties) =>
     Server.get(id).then(s => s.setProperties(properties))
   )
+  ipcMain.on('ready', () => {
+    if (NODE_ENV === 'development') send('update-ignored')
+    else autoUpdater.checkForUpdates()
+  })
 
-  window = createWindow()
+  autoUpdater.on('checking-for-update', () => send('checking-for-update'))
+  autoUpdater.on('update-available', () => {
+    send('update-checked', true)
+    confirm(
+      'Update Available',
+      'Would you like to download the latest version?'
+    ).then(agreed => {
+      if (!agreed) return send('update-ignored')
+      autoUpdater.downloadUpdate()
+    })
+  })
+  autoUpdater.on('update-not-available', () => send('update-checked', false))
+  autoUpdater.on('error', error => send('update-error', error))
+  autoUpdater.on('download-progress', progress =>
+    send('download-progress', progress)
+  )
+  autoUpdater.on('update-downloaded', info => {
+    send('update-downloaded', info)
+    confirm('Update Downloaded', 'Would you like to quit and install?').then(
+      agreed => {
+        if (!agreed) return send('update-ignored')
+        autoUpdater.quitAndInstall()
+      }
+    )
+  })
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) window = createWindow()
+  if (NODE_ENV === 'production') {
+    const menu = Menu.buildFromTemplate(MenuTemplate)
+    Menu.setApplicationMenu(menu)
+  }
+
+  autoUpdater.autoInstallOnAppQuit = true
+
+  window = await createWindow()
+
+  app.on('activate', async () => {
+    if (BrowserWindow.getAllWindows().length === 0)
+      window = await createWindow()
   })
 })
 

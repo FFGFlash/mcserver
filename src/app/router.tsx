@@ -7,6 +7,7 @@ import { editLoader, editAction } from './data/edit'
 import { serverLoader, serverAction } from './data/server'
 import { propertiesLoader, propertiesAction } from './data/properties'
 import { consoleLoader, consoleAction } from './data/console'
+import Update from './pages/update'
 
 const Root = lazy(() => import('./pages/root'))
 const Dashboard = lazy(() => import('./pages/dashboard'))
@@ -18,6 +19,11 @@ const Console = lazy(() => import('./pages/console'))
 export const routes: RouteObject[] = [
   {
     path: '/',
+    element: <Update />,
+    errorElement: <ErrorState />
+  },
+  {
+    path: '/app',
     element: <Root />,
     errorElement: <ErrorState />,
     loader: rootLoader,

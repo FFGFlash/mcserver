@@ -33,6 +33,19 @@ declare interface Window {
     isDarkMode(): Promise<boolean>
     changed(callback: (darkMode: boolean) => void): () => void
   }
+
+  updateAPI: {
+    onChecking(callback: () => void): () => void
+    onChecked(callback: (available: boolean) => void): () => void
+    onError(callback: (error: Error) => void): () => void
+    onProgress(callback: (progress: ProgressInfo) => void): () => void
+    onDownloaded(callback: (info: UpdateDownloadedEvent) => void): () => void
+    onIgnored(callback: () => void): () => void
+  }
+
+  appAPI: {
+    ready(): void
+  }
 }
 
 declare type PropertiesData = IServerProperty | null | string
