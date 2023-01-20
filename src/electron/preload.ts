@@ -137,6 +137,12 @@ window.updateAPI = {
     return () => ipcRenderer.off('update-error', handleCallback)
   },
 
+  onDownloadStarted(callback) {
+    const handleCallback = () => callback()
+    ipcRenderer.on('update-started', handleCallback)
+    return () => ipcRenderer.off('update-started', handleCallback)
+  },
+
   onDownloaded(callback) {
     const handleCallback = (_: IpcRendererEvent, info: UpdateDownloadedEvent) =>
       callback(info)

@@ -39,6 +39,7 @@ declare interface Window {
     onChecked(callback: (available: boolean) => void): () => void
     onError(callback: (error: Error) => void): () => void
     onProgress(callback: (progress: ProgressInfo) => void): () => void
+    onDownloadStarted(callback: () => void): () => void
     onDownloaded(callback: (info: UpdateDownloadedEvent) => void): () => void
     onIgnored(callback: () => void): () => void
   }

@@ -126,6 +126,7 @@ app.on('ready', async () => {
     ).then(agreed => {
       if (!agreed) return send('update-ignored')
       autoUpdater.downloadUpdate()
+      send('update-started')
     })
   })
   autoUpdater.on('update-not-available', () => send('update-checked', false))
@@ -148,6 +149,7 @@ app.on('ready', async () => {
     Menu.setApplicationMenu(menu)
   }
 
+  autoUpdater.autoDownload = false
   autoUpdater.autoInstallOnAppQuit = true
 
   window = await createWindow()

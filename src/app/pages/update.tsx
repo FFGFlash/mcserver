@@ -8,6 +8,7 @@ type States =
   | 'loading'
   | 'checking'
   | 'available'
+  | 'started'
   | 'downloading'
   | 'downloaded'
 
@@ -18,44 +19,26 @@ export default function Update() {
 
   const showApp = () => navigate('app')
 
-  useEffect(
-    () =>
+  useEffect(() => {
+    const disconnects = [
       window.updateAPI.onError(error => {
         throw error
       }),
-    []
-  )
-
-  useEffect(() => window.updateAPI.onChecking(() => setState('checking')), [])
-
-  useEffect(
-    () =>
+      window.updateAPI.onChecking(() => setState('checking')),
       window.updateAPI.onChecked(available =>
         available ? setState('available') : showApp()
       ),
-    []
-  )
-
-  useEffect(
-    () =>
+      window.updateAPI.onDownloadStarted(() => setState('started')),
       window.updateAPI.onProgress((progress: ProgressInfo) => {
         setState('downloading')
         setProgress(progress)
       }),
-    []
-  )
-
-  useEffect(
-    () => window.updateAPI.onDownloaded(() => setState('downloaded')),
-    []
-  )
-
-  useEffect(
-    () => window.updateAPI.onIgnored(() => setTimeout(showApp, 1000)),
-    []
-  )
-
-  useEffect(() => window.appAPI.ready(), [])
+      window.updateAPI.onDownloaded(() => setState('downloaded')),
+      window.updateAPI.onIgnored(() => setTimeout(showApp, 1000))
+    ]
+    window.appAPI.ready()
+    return () => disconnects.forEach(disconnect => disconnect())
+  }, [])
 
   switch (state) {
     case 'loading':
@@ -72,6 +55,13 @@ export default function Update() {
         <InfoState
           title="Update Available!"
           description="Looks like we found an update..."
+        />
+      )
+    case 'started':
+      return (
+        <InfoState
+          title="Update Started!"
+          description="Please wait as we download the update..."
         />
       )
     case 'downloading':
