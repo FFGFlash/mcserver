@@ -8,7 +8,7 @@ export async function serverAction({ request, params }: ActionFunctionArgs) {
   const id = params.serverID as string
   if (request.method.toLowerCase() === 'delete') {
     window.serverAPI.delete(id)
-    return redirect('/')
+    return redirect('/app')
   } else if (request.method.toLowerCase() === 'post') {
     const data = await request.formData()
     const state = data.get('state') as ServerState

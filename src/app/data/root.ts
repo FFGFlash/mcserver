@@ -8,5 +8,5 @@ export async function rootLoader() {
 
 export async function rootAction() {
   const server = await window.serverAPI.create()
-  return redirect(`/server/${server.id}/edit`)
+  return redirect(`/app/server/${server.id}/edit`)
 }

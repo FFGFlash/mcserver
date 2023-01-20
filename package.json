@@ -1,8 +1,8 @@
 {
   "name": "minecraft-server-manager",
   "private": true,
-  "version": "1.0.2",
-  "description": "",
+  "version": "1.0.3",
+  "description": "Minecraft Server Manager",
   "main": "out/index.js",
   "bin": "out/index.js",
   "scripts": {
@@ -80,10 +80,20 @@
     "appId": "me.taylorda.mcserver",
     "productName": "Minecraft Server Manager",
     "copyright": "Copyright (c) 2023 Drake Taylor",
+    "icon": "src/app/images/512x512.png",
+    "publish": [
+      {
+        "provider": "github"
+      }
+    ],
     "win": {
-      "target": "nsis",
-      "icon": "src/app/images/icon.ico",
-      "publish": "github"
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
     }
   }
 }

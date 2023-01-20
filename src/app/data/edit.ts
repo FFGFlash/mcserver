@@ -24,5 +24,5 @@ export async function editAction({ request, params }: ActionFunctionArgs) {
     parseInt(formData.get('softMaxMemory') as string),
     parseInt(formData.get('maxMemory') as string)
   )
-  return redirect(`/server/${id}`)
+  return redirect(`/app/server/${id}`)
 }
